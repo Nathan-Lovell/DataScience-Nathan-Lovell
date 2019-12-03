@@ -14,7 +14,7 @@ This first deliverable starts to look at reviews provided by Amazon and what que
 
 ### 2. Model Planning and Building
 
-Coming soon...
+This second deliverable looks at adding a new data set to suplement the one discovered in deliverable 1. It also starts looking at models by testing out an initial model and plans for moving forwards. [Second Deliverable](https://htmlpreview.github.com/?https://github.com/NathanLovell/DataScience-Nathan-Lovell/master/deliverable2.html)
 
 ### 3. Results and Operationalization
 
