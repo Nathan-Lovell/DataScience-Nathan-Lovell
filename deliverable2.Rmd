@@ -1,0 +1,98 @@
+---
+title: "Deliverable 2"
+output:
+  html_document:
+    df_print: paged
+---
+
+***
+
+## Overview of Deliverable 2
+Welcome to the second deliverable. In this segment, I will be pulling in a new data source, making it tidy, and then moving on to Model Planning and Model Building. Some predictions that I would like my model to try and predict would be if my data on verified purchases can predict how high a rating will be. I am also interested in if the number of stars reflects how many helpful ratings a review recieved. I also want a model to show if reviews are worse as holidays such as christmas are coming up.
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("knitr")
+include("jsonlite")
+purl("https://raw.githubusercontent.com/NathanLovell/DataScience-Nathan-Lovell/master/deliverable1.Rmd", output = "part1.r") # produces r source from rmd
+source("part1.r") # executes the source
+```
+***
+## New Data
+
+My new data set is a json file provided by Julian McAuley from UCSD. This file had over 1,000,000 reviews, so in order to import it to R studio I needed to cut it down to 5000 like in my last deliverable. The format of this json file was also a little bit weird so before import I converted it to a csv. Both files are located in this github repository. This new data will be helpful because my old data only ranged in date from January of 2014 to September of the same year. My new data ranges in date from 2005 until 2014. This will allow me to look into patters involving holidays throughout the years instead of only a couple of months in 2014.
+
+```{r echo=FALSE, message=FALSE, results='hide'}
+Amazon_json <- read_csv("convertcsv.csv")
+#Amazon_Ratings <- read_csv("https://raw.githubusercontent.com/NathanLovell/DataScience-Nathan-Lovell/master/5000_Rows.csv")
+#Amazon_json <- fromJSON("5000_json.json", flatten=TRUE) <- formatting error and cannot run. Must convert to csv
+```
+
+This data set has 10 column names.
+```{r}
+colnames(Amazon_json)
+```
+
+1. **reviewerID**
+  + Stores the ID of the person who left the review
+2. **asin**
+  + Stores the ID for the product that was reviewed
+3. **reviewerName**
+  + Stores the name of the person who left the review
+4. **helpful/0**
+  + Stores the number of helpful review votes this review got
+5. **helpful/1**
+  + Stores the total number of helpful and non-helpful votes this review got
+6. **reviewText**
+  + Stores the text of the review
+7. **overall**
+  + Stores the rating the review gave the product
+8. **summary**
+  + Stores the reviews title
+9. **unixReviewTime**
+  + Stores the time the review was left in unix time
+10. **reviewTime**
+  + Stores the raw review time as month day, year
+  
+***
+## Tidy New Data
+Some of these columns are not usefull to analys and will not help create relations so I am going to rename and remove some of these from my new tibble.
+```{r}
+json_reviews <- tibble(
+reviewerer_id=Amazon_json$reviewerID, product_id=Amazon_json$asin, helpful_vote=Amazon_json$`helpful/0`, total_vote=Amazon_json$`helpful/1`, review_title=Amazon_json$summary, review_text=Amazon_json$reviewText, review_time=Amazon_json$unixReviewTime
+)
+colnames(json_reviews)
+```
+
+***
+## Initial Model
+
+### Visualization
+***
+For my initial model, I will see if my data on verified purchases can predict how high a rating will be. First I will graph the two to see if there is any trend to back up my hypothesis.
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+only_verified <- filter(Review, verified_purchase == "Y")
+no_verified <- filter(Review, verified_purchase== "N")
+```
+```{r}
+ggplot(only_verified, aes(x=star_rating)) + geom_bar(aes(y=(..count..)/sum(..count..))) + coord_cartesian(ylim=c(0, .60)) + labs(title="Verified Purchase Reviews", x="Number of Stars", y="% of Reviews")
+ggplot(no_verified, aes(x=star_rating)) + geom_bar(aes(y=(..count..)/sum(..count..))) + coord_cartesian(ylim=c(0, .60)) + labs(title="Non-Verified Purchase Reviews", x="Number of Stars", y="% of Reviews")
+```
+
+From these two graphs, we can see that between them, the 2, 3, and 4 star ratings do not change much between verified and non-verified purchases but there is a 5% difference between both the 5 star reviews and the 1 star reviews. This means that verified purchasers are 5% more likely to drop a 5 star review rather than a 1 star review. While this may not translate into much, my model will be able to see how much of a corolation there is between the two.
+
+### Model
+***
+Now I will create my model seeing if verified purchases can predict the star rating given by the customer.
+```{r}
+simple_model <- lm(Review, formula= as.numeric(star_rating) ~ as.numeric(verified_purchase))
+summary(simple_model)
+```
+
+According to this summary, this relationship has a p-value of 0.0002165. This is far below a common cut off point of 0.05. This means that there is strong evidence against the null hypothesis. This fits with the data explained using the graphs above.
+
