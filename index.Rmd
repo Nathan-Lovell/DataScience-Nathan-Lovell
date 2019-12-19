@@ -18,5 +18,5 @@ This second deliverable looks at adding a new data set to suplement the one disc
 
 ### 3. Results and Operationalization
 
-Coming soon...
+This third deliverable pulls all of the other deliverables together and looks into how this data can be usefull. This deliverable also has a section on how this work can be ethically operationalized for any businesses that has reviews impact their sales. [Third Deliverable](https://htmlpreview.github.com/?https://github.com/Nathan-Lovell/DataScience-Nathan-Lovell/master/deliverable3.html)
 

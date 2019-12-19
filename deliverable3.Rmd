@@ -1,0 +1,78 @@
+---
+title: "Deliverable 3"
+output:
+  html_document:
+    df_print: paged
+---
+
+***
+
+## Overview of Deliverable 3
+In this deliverable, we will be looking at ways to predict the stars that a reviewer will give a product in their review. Even if these models fail, we can still look at what this means for potential companies and ways to still get helpful information from these datasets.
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("knitr")
+include("jsonlite")
+include("caret")
+purl("https://raw.githubusercontent.com/Nathan-Lovell/DataScience-Nathan-Lovell/master/deliverable2.Rmd", output = "part2.r") # produces r source from rmd
+source("part2.r") # executes the source
+```
+***
+## Update Deliverable 2
+To start off, I will need to update one of my data sets with a new column. I did not need overall rating on my second data set for deliverable 2 but it will come in handy so I will add it now.
+```{r}
+json_reviews <- tibble(
+reviewerer_id=Amazon_json$reviewerID, product_id=Amazon_json$asin, helpful_vote=Amazon_json$`helpful/0`, total_vote=Amazon_json$`helpful/1`, review_title=Amazon_json$summary, review_text=Amazon_json$reviewText, review_time=Amazon_json$unixReviewTime, star_rating=Amazon_json$overall
+)
+colnames(json_reviews)
+```
+
+***
+## Validation
+For this deliverable I would like to add a new model that tries to see if there is a coralation between the number of helpful votes on a review can predict the star rating the review gave the product.
+
+```{r}
+model <- lm(star_rating ~ helpful_vote, data = json_reviews)
+summary(model)
+```
+Unfortunatly with a p-value of .3, it looks like this kind of prediction does not work. Lets try changing the model to see if we can make any corolations that are worth our time. Lets make a model that uses both helpful votes and the total number of votes(good and bad) to try to predict the star rating.
+
+
+```{r}
+model <- lm(star_rating ~ helpful_vote + total_vote, data = json_reviews)
+summary(model)
+```
+
+According to this p-value, this model should be enough to test using cross-validation. Now we can set up training and testing to see how well our model predicts our data.
+```{r}
+set.seed(200)
+sample_selection <- createDataPartition(json_reviews$star_rating, p = 0.70, list = FALSE)
+train <- json_reviews[sample_selection, ]
+test <- json_reviews[-sample_selection, ]
+train_model <- lm(star_rating ~ helpful_vote + total_vote, data = train)
+predictions <- train_model %>% predict(test)
+```
+
+***
+## Conclusion
+Now that we have our validation set up, lets see how well it predicts our data.
+```{r}
+#summary(train_model)
+R2(predictions, test$star_rating)
+MAE(predictions, test$star_rating)
+```
+It looks like this does not predict our data very well. This is not a failure though, it just means that helpful and non-helpful votes on a review does not reflect the star rating the reviewer gave the product.
+
+***
+## Operationalize
+For companies that rely on product reviews, the fact that helpful votes is not a predictor of star ratings is helpful to know and makes sense. Reviews that are helpful are often ones that tell the truth and warn potential buyers of benifits and flaws in the product. When looking to improve their star ratings, they should look into other areas rather than just how helpful the review is. 
+
+***
+## Project Summary
+After looking through 10,000 reviews of different electronic products, it is clear that a lot of variables goes into the star rating a review will give. Depending on the product, the reviewer, and many other things, predicting the star review is almost impossible without more data. While helpful conclusions can be drawn from the failed predictions, we will need to look elsewhere for a better predictor of stars.
