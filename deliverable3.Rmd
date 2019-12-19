@@ -16,10 +16,9 @@ include <- function(library_name){
     install.packages(library_name) 
   library(library_name, character.only=TRUE)
 }
-include("tidyverse")
 include("knitr")
-include("jsonlite")
 include("caret")
+source("part1.r")
 purl("https://raw.githubusercontent.com/Nathan-Lovell/DataScience-Nathan-Lovell/master/deliverable2.Rmd", output = "part2.r") # produces r source from rmd
 source("part2.r") # executes the source
 ```

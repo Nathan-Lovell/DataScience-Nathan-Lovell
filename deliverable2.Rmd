@@ -19,8 +19,8 @@ include <- function(library_name){
 include("tidyverse")
 include("knitr")
 include("jsonlite")
-purl("https://raw.githubusercontent.com/Nathan-Lovell/DataScience-Nathan-Lovell/master/deliverable1.Rmd", output = "part1for2.r") # produces r source from rmd
-source("part1for2.r") # executes the source
+#purl("https://raw.githubusercontent.com/Nathan-Lovell/DataScience-Nathan-Lovell/master/deliverable1.Rmd", output = "part1.r") # produces r source from rmd
+#source("part1.r") # executes the source
 ```
 ***
 ## New Data
