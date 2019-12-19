@@ -34,12 +34,21 @@ output:
 
 The rest of the project will be the data off of my GitHub. This will not go in to how I originally went from their data at over 200,000 down to 5,000 (at some point I plan to return to the original data set). The following libraries are required to run.
 
-```{r echo=FALSE}
-library("tidyverse")
-library("dplyr")
-library("tidyr")
-library("readr")
-library("ggplot2")
+
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("knitr")
+include("jsonlite")
+include("tidyverse")
+include("dplyr")
+include("tidyr")
+include("readr")
+include("ggplot2")
 ```
 
 This is the dataset from GitHub. It will store into dataset Amazon_Ratings. This will be the starting point from which I will extract Tidy Data.
